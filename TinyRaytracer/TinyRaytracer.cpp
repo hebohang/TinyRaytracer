@@ -5,12 +5,17 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <filesystem>
 
 void render()
 {
     const std::string ProjPath(PROJECT_PATH);
+    const std::string ResoucePath = ProjPath + std::string("/resource");
 
-    std::string OutPath = ProjPath + std::string("/resource/out.png");
+    if (!std::filesystem::exists(ResoucePath))
+        std::filesystem::create_directories(ResoucePath);
+
+    std::string OutPath = ResoucePath + std::string("/out.png");
     const int width = 1024;
     const int height = 768;
     std::vector<Vec3f> framebuffer(width * height);
