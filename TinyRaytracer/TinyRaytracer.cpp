@@ -8,6 +8,7 @@
 #include <vector>
 #include <sstream>
 #include <filesystem>
+#include <Eigen/Dense>
 
 struct Sphere 
 {
@@ -81,6 +82,12 @@ void render(const Sphere& sphere)
 
 int main()
 {
-    Sphere sphere(Vec3f(-3.0f, 0.0f, -16.0f), 2);
-    render(sphere);
+    Eigen::MatrixXd m(2, 2);  // MatrixXd表示是任意尺寸的矩阵ixj, m(2,2)代表一个2x2的方块矩阵
+    m(0, 0) = 3;  // 代表矩阵元素a11
+    m(1, 0) = 2.5;  // a21
+    m(0, 1) = -1;  // a12
+    m(1, 1) = m(1, 0) + m(0, 1);  // a22=a21+a12
+    std::cout << m << std::endl;  // 输出矩阵m
+    //Sphere sphere(Vec3f(-3.0f, 0.0f, -16.0f), 2);
+    //render(sphere);
 }
