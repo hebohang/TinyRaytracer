@@ -11,5 +11,5 @@ target_link_libraries(TinyRaytracer PRIVATE
 )
 
 target_include_directories(TinyRaytracer PRIVATE
-    ${PROJECT_SOURCE_DIR}/vendor
+    ${PROJECT_SOURCE_DIR}/src/vendor
 )
