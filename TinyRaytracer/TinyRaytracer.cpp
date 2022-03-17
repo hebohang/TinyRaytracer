@@ -1,6 +1,5 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
-#include "geometry.h"
 #include <omp.h>
 #include <iostream>
 #include <string>
@@ -10,18 +9,20 @@
 #include <filesystem>
 #include <Eigen/Dense>
 
+using Eigen::Vector3f;
+
 struct Sphere 
 {
-    Vec3f center;
+    Vector3f center;
     float radius;
 
-    Sphere(const Vec3f& c, const float& r) : center(c), radius(r) {}
+    Sphere(const Vector3f& c, const float& r) : center(c), radius(r) {}
 
-    bool ray_intersect(const Vec3f& orig, const Vec3f& dir, float& t0) const 
+    bool ray_intersect(const Vector3f& orig, const Vector3f& dir, float& t0) const 
     {
-        Vec3f L = center - orig;
-        float tca = L * dir;
-        float d2 = L * L - tca * tca;
+        Vector3f L = center - orig;
+        float tca = L.dot(dir);
+        float d2 = L.dot(L) - tca * tca;
         if (d2 > radius * radius) return false;
         float thc = sqrtf(radius * radius - d2);
         t0 = tca - thc;
@@ -32,14 +33,14 @@ struct Sphere
     }
 };
 
-Vec3f cast_ray(const Vec3f& orig, const Vec3f& dir, const Sphere& sphere) 
+Vector3f cast_ray(const Vector3f& orig, const Vector3f& dir, const Sphere& sphere) 
 {
     float sphere_dist = std::numeric_limits<float>::max();
     if (!sphere.ray_intersect(orig, dir, sphere_dist)) 
     {
-        return Vec3f(0.2f, 0.7f, 0.8f); // background color
+        return Vector3f(0.2f, 0.7f, 0.8f); // background color
     }
-    return Vec3f(0.4f, 0.4f, 0.3f);
+    return Vector3f(0.4f, 0.4f, 0.3f);
 }
 
 void render(const Sphere& sphere)
@@ -54,7 +55,7 @@ void render(const Sphere& sphere)
     const int width = 1024;
     const int height = 768;
     const double fov = std::numbers::pi / 2.;
-    std::vector<Vec3f> framebuffer(width * height);
+    std::vector<Vector3f> framebuffer(width * height);
 
 #pragma omp parallel for
     for (size_t j = 0; j < height; j++)
@@ -63,8 +64,8 @@ void render(const Sphere& sphere)
         {
             float x = (2 * (i + 0.5f) / (float)width - 1.0f) * (float)tan(fov / 2.) * (float)width / (float)height;
             float y = -(2 * (j + 0.5f) / (float)height - 1.0f) * (float)tan(fov / 2.);
-            Vec3f dir = Vec3f(x, y, -1.0f).normalize();
-            framebuffer[i + j * width] = cast_ray(Vec3f(0.0f, 0.0f, 0.0f), dir, sphere);
+            Vector3f dir = Vector3f(x, y, -1.0f).normalized();
+            framebuffer[i + j * width] = cast_ray(Vector3f(0.0f, 0.0f, 0.0f), dir, sphere);
         }
     }
 
@@ -82,12 +83,6 @@ void render(const Sphere& sphere)
 
 int main()
 {
-    Eigen::MatrixXd m(2, 2);  // MatrixXd表示是任意尺寸的矩阵ixj, m(2,2)代表一个2x2的方块矩阵
-    m(0, 0) = 3;  // 代表矩阵元素a11
-    m(1, 0) = 2.5;  // a21
-    m(0, 1) = -1;  // a12
-    m(1, 1) = m(1, 0) + m(0, 1);  // a22=a21+a12
-    std::cout << m << std::endl;  // 输出矩阵m
-    //Sphere sphere(Vec3f(-3.0f, 0.0f, -16.0f), 2);
-    //render(sphere);
+    Sphere sphere(Vector3f(-3.0f, 0.0f, -16.0f), 2);
+    render(sphere);
 }
