@@ -1,6 +1,5 @@
-#include "stb_image.h"
-#include "stb_image_write.h"
 #include "Camera.h"
+
 #include <omp.h>
 #include <iostream>
 #include <string>
@@ -8,7 +7,11 @@
 #include <vector>
 #include <sstream>
 #include <filesystem>
+
+#include <stb_image.h>
+#include <stb_image_write.h>
 #include <Eigen/Dense>
+#include <GLFW/glfw3.h>
 
 using Eigen::Vector3f;
 
@@ -85,7 +88,40 @@ void render(const Camera& cam, const Sphere& sphere)
 
 int main()
 {
-    Camera cam;
-    Sphere sphere(Vector3f(-3.0f, 0.0f, -16.0f), 2);
-    render(cam, sphere);
+    GLFWwindow* window;
+
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
+
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        return -1;
+    }
+
+    /* Make the window's context current */
+    glfwMakeContextCurrent(window);
+
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
+        /* Render here */
+        glClearColor(1.0, 0.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window);
+
+        /* Poll for and process events */
+        glfwPollEvents();
+    }
+
+    glfwTerminate();
+
+    //Camera cam;
+    //Sphere sphere(Vector3f(-3.0f, 0.0f, -16.0f), 2);
+    //render(cam, sphere);
 }

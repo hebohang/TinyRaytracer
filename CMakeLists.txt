@@ -5,4 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project("TinyRaytracer")
 
+find_package(OpenGL REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIRS})
+
 add_subdirectory(src)
