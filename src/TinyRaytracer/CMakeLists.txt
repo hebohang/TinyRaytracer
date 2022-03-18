@@ -10,6 +10,7 @@ target_link_libraries(TinyRaytracer PRIVATE
     stb_image
     camera
     glfw
+    ${OPENGL_LIBRARIES}
 )
 
 target_include_directories(TinyRaytracer PRIVATE
