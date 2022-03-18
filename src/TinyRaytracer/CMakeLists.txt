@@ -8,6 +8,7 @@ PRIVATE
 
 target_link_libraries(TinyRaytracer PRIVATE
     stb_image
+    camera
 )
 
 target_include_directories(TinyRaytracer PRIVATE

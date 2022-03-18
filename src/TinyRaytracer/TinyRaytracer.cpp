@@ -1,5 +1,6 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
+#include "Camera.h"
 #include <omp.h>
 #include <iostream>
 #include <string>
@@ -43,7 +44,7 @@ Vector3f cast_ray(const Vector3f& orig, const Vector3f& dir, const Sphere& spher
     return Vector3f(0.4f, 0.4f, 0.3f);
 }
 
-void render(const Sphere& sphere)
+void render(const Camera& cam, const Sphere& sphere)
 {
     const std::string ProjPath(PROJECT_PATH);
     const std::string ResoucePath = ProjPath + std::string("/resource");
@@ -54,7 +55,7 @@ void render(const Sphere& sphere)
     std::string OutPath = ResoucePath + std::string("/out.png");
     const int width = 1024;
     const int height = 768;
-    const double fov = std::numbers::pi / 2.;
+    float tanFov2 = (float)tan(cam.GetFov() / 2.);
     std::vector<Vector3f> framebuffer(width * height);
 
 #pragma omp parallel for
@@ -62,10 +63,11 @@ void render(const Sphere& sphere)
     {
         for (size_t i = 0; i < width; i++)
         {
-            float x = (2 * (i + 0.5f) / (float)width - 1.0f) * (float)tan(fov / 2.) * (float)width / (float)height;
-            float y = -(2 * (j + 0.5f) / (float)height - 1.0f) * (float)tan(fov / 2.);
+            float x = (2 * (i + 0.5f) / (float)width - 1.0f) * tanFov2 * (float)width / (float)height;
+            float y = -(2 * (j + 0.5f) / (float)height - 1.0f) * tanFov2;
+            // Vector3f dir = Eigen::AngleAxisf(std::numbers::pi / 4, Vector3f(0.0f, 0.0f, 1.0f)).matrix().transpose() * Vector3f(x, y, -1.0f).normalized();
             Vector3f dir = Vector3f(x, y, -1.0f).normalized();
-            framebuffer[i + j * width] = cast_ray(Vector3f(0.0f, 0.0f, 0.0f), dir, sphere);
+            framebuffer[i + j * width] = cast_ray(cam.GetPos(), dir, sphere);
         }
     }
 
@@ -83,6 +85,7 @@ void render(const Sphere& sphere)
 
 int main()
 {
+    Camera cam;
     Sphere sphere(Vector3f(-3.0f, 0.0f, -16.0f), 2);
-    render(sphere);
+    render(cam, sphere);
 }
