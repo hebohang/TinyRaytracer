@@ -48,7 +48,7 @@ Vector3f cast_ray(const Vector3f& orig, const Vector3f& dir, const Sphere& spher
     return Vector3f(0.4f, 0.4f, 0.3f);
 }
 
-void render(const Camera& cam, const Sphere& sphere)
+void RenderToBuffer(const Camera& cam, const Sphere& sphere, std::stringstream& outBuffer)
 {
     const std::string ProjPath(PROJECT_PATH);
     const std::string ResoucePath = ProjPath + std::string("/resource");
@@ -73,18 +73,22 @@ void render(const Camera& cam, const Sphere& sphere)
         }
     }
 
-    std::stringstream ss;
     for (size_t i = 0; i < height * width; i++)
     {
         for (size_t j = 0; j < 3; j++)
         {
-            ss << (char)(255 * std::max(0.f, std::min(1.f, framebuffer[i][j])));
+            outBuffer << (char)(255 * std::max(0.f, std::min(1.f, framebuffer[i][j])));
         }
     }
 
-    glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, ss.str().c_str());
+    //glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, ss.str().c_str());
 
     //stbi_write_png(OutPath.c_str(), width, height, 3, ss.str().c_str(), 0);
+}
+
+void display(std::stringstream& buffer)
+{
+    glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer.str().c_str());
 }
 
 int main()
@@ -92,6 +96,7 @@ int main()
     GLFWwindow* window;
     Camera cam;
     Sphere sphere(Vector3f(-3.0f, 0.0f, -16.0f), 2);
+    std::stringstream buffer;
 
     /* Initialize the library */
     if (!glfwInit())
@@ -112,7 +117,8 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        render(cam, sphere);
+        RenderToBuffer(cam, sphere, buffer);
+        display(buffer);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
