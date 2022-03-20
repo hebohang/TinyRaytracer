@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "TinyRaytracer.h"
 
 #include <omp.h>
 #include <iostream>
@@ -56,8 +57,6 @@ void render(const Camera& cam, const Sphere& sphere)
         std::filesystem::create_directories(ResoucePath);
 
     std::string OutPath = ResoucePath + std::string("/out.png");
-    const int width = 1024;
-    const int height = 768;
     float tanFov2 = (float)tan(cam.GetFov() / 2.);
     std::vector<Vector3f> framebuffer(width * height);
 
@@ -83,19 +82,23 @@ void render(const Camera& cam, const Sphere& sphere)
         }
     }
 
-    stbi_write_png(OutPath.c_str(), width, height, 3, ss.str().c_str(), 0);
+    glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, ss.str().c_str());
+
+    //stbi_write_png(OutPath.c_str(), width, height, 3, ss.str().c_str(), 0);
 }
 
 int main()
 {
     GLFWwindow* window;
+    Camera cam;
+    Sphere sphere(Vector3f(-3.0f, 0.0f, -16.0f), 2);
 
     /* Initialize the library */
     if (!glfwInit())
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -109,8 +112,7 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        glClearColor(1.0, 0.0, 0.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        render(cam, sphere);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -120,8 +122,4 @@ int main()
     }
 
     glfwTerminate();
-
-    //Camera cam;
-    //Sphere sphere(Vector3f(-3.0f, 0.0f, -16.0f), 2);
-    //render(cam, sphere);
 }
